@@ -10,7 +10,7 @@ class Reserva(BaseModel):
     date_end: datetime
     tiene_ninos: Optional[bool] = False
     tiene_mascotas: Optional[bool] = False
-    total_cop: Decimal
+    total_cop: Optional[Decimal] 
     estado: Optional[bool] = True
     date_created: Optional[datetime] = None
     date_updated: Optional[datetime] = None

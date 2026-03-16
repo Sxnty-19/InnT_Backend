@@ -66,7 +66,7 @@ class ModuloRolController:
             conn = connection_neon()
             cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-            cursor.execute("""SELECT * FROM modulo_rol""")
+            cursor.execute("SELECT * FROM modulo_rol")
 
             data = cursor.fetchall()
 
