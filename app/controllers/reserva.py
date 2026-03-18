@@ -2,9 +2,10 @@ import psycopg2
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from psycopg2.extras import RealDictCursor
+from datetime import datetime, timedelta
 from config.neonConfig import connection_neon
-from utils.time import get_date
 from models.reserva import Reserva
+from utils.time import get_date
 
 class ReservaController:
 
@@ -212,11 +213,174 @@ class ReservaController:
             if conn:
                 conn.close()
 
-    #def get_reservas_usuarios(self):
-        #
+    def get_reservas_usuarios(self):
+        conn = None
+        cursor = None
 
-    #def delete_reserva(self, id_reserva: int):
-        #
+        try:
+            conn = connection_neon()
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-    #def create_reserva_habitaciones(self, id_usuario: int, date_start: str, date_end: str, habitaciones: list, estado=True):
-        #
+            cursor.execute("""
+                SELECT
+                    r.date_start,
+                    r.date_end,
+                    r.tiene_ninos,
+                    r.tiene_mascotas,
+                    r.total_cop,
+                    u.primer_nombre || ' ' ||
+                    COALESCE(u.segundo_nombre, '') || ' ' ||
+                    u.primer_apellido || ' ' ||
+                    COALESCE(u.segundo_apellido, '') AS nombre_completo
+                FROM reserva r
+                INNER JOIN usuario u 
+                    ON r.id_usuario = u.id_usuario
+                WHERE r.estado = TRUE
+                ORDER BY r.date_created DESC
+            """)
+
+            data = cursor.fetchall()
+
+            if not data:
+                raise HTTPException(status_code=404, detail="No hay reservas registradas.")
+
+            return {
+                "success": True,
+                "data": jsonable_encoder(data)
+            }
+
+        except psycopg2.Error as err:
+            if conn:
+                conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error en la base de datos: {str(err)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    def delete_reserva(self, id_reserva: int):
+        conn = None
+        cursor = None
+
+        try:
+            conn = connection_neon()
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+            date = get_date().replace(tzinfo=None)
+
+            cursor.execute("""
+                SELECT date_start
+                FROM reserva
+                WHERE id_reserva = %s
+            """, (id_reserva,))
+
+            data = cursor.fetchone()
+
+            if not data:
+                raise HTTPException(status_code=404, detail="Reserva no encontrada.")
+
+            date_start = data["date_start"]
+
+            if isinstance(date_start, str):
+                try:
+                    date_start = datetime.fromisoformat(date_start)
+                except Exception:
+                    raise HTTPException(status_code=500, detail="Formato de fecha inválido.")
+
+            if date_start - date < timedelta(hours=24):
+                raise HTTPException(status_code=400, detail="No se puede cancelar la reserva, faltan menos de 24 horas.")
+
+            cursor.execute("""
+                UPDATE reserva
+                SET estado = FALSE,
+                    date_updated = %s
+                WHERE id_reserva = %s
+            """, (date, id_reserva))
+
+            conn.commit()
+
+            return {
+                "success": True,
+                "message": "Reserva cancelada correctamente."
+            }
+
+        except psycopg2.Error as err:
+            if conn:
+                conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error en la base de datos: {str(err)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    def create_reserva_habitaciones(self, id_usuario: int, date_start: str, date_end: str, habitaciones: list):
+        conn = None
+        cursor = None
+
+        try:
+            conn = connection_neon()
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+            date_start = datetime.strptime(date_start, "%Y-%m-%d")
+            date_end = datetime.strptime(date_end, "%Y-%m-%d")
+
+            date = get_date()
+
+            cursor.execute("""
+                SELECT 1 
+                FROM documento 
+                WHERE id_usuario = %s
+            """, (id_usuario,))
+            
+            documento = cursor.fetchone()
+
+            if not documento:
+                raise HTTPException(status_code=400, detail="El usuario no tiene ningún documento registrado.")
+
+            cursor.execute("""
+                INSERT INTO reserva (
+                    id_usuario, 
+                    date_start, 
+                    date_end, 
+                    estado, 
+                    date_created,
+                    date_updated
+                ) VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id_reserva
+            """, (id_usuario, date_start, date_end, True, date, date))
+
+            id_reserva = cursor.fetchone()["id_reserva"]
+
+            for id_h in habitaciones:
+                cursor.execute("""
+                    INSERT INTO reserva_habitacion (
+                        id_reserva, 
+                        id_habitacion, 
+                        estado, 
+                        date_created, 
+                        date_updated
+                    ) VALUES (%s, %s, %s, %s, %s)
+                """, (id_reserva, id_h, True, date, date))
+
+            conn.commit()
+
+            return {
+                "success": True,
+                "message": "Reserva creada con habitaciones.",
+                "id_reserva": id_reserva
+            }
+
+        except psycopg2.Error as err:
+            if conn:
+                conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error en la base de datos: {str(err)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()

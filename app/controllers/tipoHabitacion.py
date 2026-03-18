@@ -3,8 +3,8 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from psycopg2.extras import RealDictCursor
 from config.neonConfig import connection_neon
-from utils.time import get_date
 from models.tipoHabitacion import TipoHabitacion
+from utils.time import get_date
 
 class TipoHabitacionController:
 
