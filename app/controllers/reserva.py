@@ -3,6 +3,8 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
+
+from realtime import Optional
 from config.neonConfig import connection_neon
 from models.reserva import Reserva
 from utils.time import get_date
@@ -27,11 +29,12 @@ class ReservaController:
                     tiene_ninos,
                     tiene_mascotas,
                     total_cop,
+                    capacidad_total,
                     estado,
                     date_created,
                     date_updated
                 )
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id_reserva;
             """
             values = (
@@ -41,6 +44,7 @@ class ReservaController:
                 reserva.tiene_ninos,
                 reserva.tiene_mascotas,
                 reserva.total_cop,
+                reserva.capacidad_total,
                 reserva.estado,
                 date,
                 date
@@ -319,7 +323,7 @@ class ReservaController:
             if conn:
                 conn.close()
 
-    def create_reserva_habitaciones(self, id_usuario: int, date_start: str, date_end: str, habitaciones: list):
+    def create_reserva_habitaciones(self, id_usuario: int, date_start: str, date_end: str, tiene_ninos: bool, tiene_mascotas: bool, habitaciones: list):
         conn = None
         cursor = None
 
@@ -331,6 +335,15 @@ class ReservaController:
             date_end = datetime.strptime(date_end, "%Y-%m-%d")
 
             date = get_date()
+            aux = (date_end - date_start).days
+            aux_capacidad = 0
+            aux_total = 0
+
+            if date_start.date() <= date.date():
+                raise HTTPException(status_code=400, detail="La fecha de inicio debe ser posterior al día actual.")
+
+            if aux <= 0:
+                raise HTTPException(status_code=400, detail="Las fechas de la reserva son inválidas.")
 
             cursor.execute("""
                 SELECT 1 
@@ -343,17 +356,37 @@ class ReservaController:
             if not documento:
                 raise HTTPException(status_code=400, detail="El usuario no tiene ningún documento registrado.")
 
+            for id_h in habitaciones:
+                cursor.execute("""
+                    SELECT th.capacidad_max, th.precio_x_dia
+                    FROM habitacion h
+                    JOIN tipo_habitacion th ON h.id_tipo_habitacion = th.id_tipo_habitacion
+                    WHERE h.id_habitacion = %s
+                """, (id_h,))
+
+                data = cursor.fetchone()
+
+                if not data:
+                    raise HTTPException(status_code=404, detail=f"Habitación {id_h} no encontrada")
+
+                aux_capacidad += data["capacidad_max"]
+                aux_total += data["precio_x_dia"] * aux
+
             cursor.execute("""
                 INSERT INTO reserva (
                     id_usuario, 
                     date_start, 
-                    date_end, 
+                    date_end,
+                    tiene_ninos,
+                    tiene_mascotas,
+                    total_cop, 
+                    capacidad_total,
                     estado, 
                     date_created,
                     date_updated
-                ) VALUES (%s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 RETURNING id_reserva
-            """, (id_usuario, date_start, date_end, True, date, date))
+            """, (id_usuario, date_start, date_end, tiene_ninos, tiene_mascotas, aux_total, aux_capacidad, True, date, date))
 
             id_reserva = cursor.fetchone()["id_reserva"]
 

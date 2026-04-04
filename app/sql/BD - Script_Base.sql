@@ -113,6 +113,7 @@ CREATE TABLE reserva (
     tiene_ninos BOOLEAN DEFAULT FALSE,
     tiene_mascotas BOOLEAN DEFAULT FALSE,
     total_cop NUMERIC(10,2) DEFAULT 0,
+    capacidad_total INT,
     estado BOOLEAN DEFAULT TRUE,
     date_created TIMESTAMP,
     date_updated TIMESTAMP,
