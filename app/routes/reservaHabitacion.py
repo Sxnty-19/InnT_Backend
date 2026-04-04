@@ -5,17 +5,14 @@ from models.reservaHabitacion import ReservaHabitacion
 reservaHabitacion_router = APIRouter()
 reservaHabitacion_controller = ReservaHabitacionController()
 
-@reservaHabitacion_router.post("/create_reserva_habitacion")
+@reservaHabitacion_router.post("/")
 async def create_reservaHabitacion(reserva_habitacion: ReservaHabitacion):
-    rpta = reservaHabitacion_controller.create_reservaHabitacion(reserva_habitacion)
-    return rpta
+    return reservaHabitacion_controller.create_reservaHabitacion(reserva_habitacion)
 
-@reservaHabitacion_router.get("/get_reservas_habitaciones")
+@reservaHabitacion_router.get("/")
 async def get_reservaHabitaciones():
-    rpta = reservaHabitacion_controller.get_reservaHabitaciones()
-    return rpta
+    return reservaHabitacion_controller.get_reservaHabitaciones()
 
-@reservaHabitacion_router.get("/get_reserva_habitacion/{id_rxh}")
+@reservaHabitacion_router.get("/{id_rxh}")
 async def get_reservaHabitacion_id(id_rxh: int):
-    rpta = reservaHabitacion_controller.get_reservaHabitacion_id(id_rxh)
-    return rpta
+    return reservaHabitacion_controller.get_reservaHabitacion_id(id_rxh)

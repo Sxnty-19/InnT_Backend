@@ -26,6 +26,6 @@ def get_disponibles(date_start: str, date_end: str):
     return habitacion_controller.get_disponibles(date_start, date_end)
 
 # Actualizar limpieza
-@habitacion_router.put("/limpieza/{id_habitacion}")
+@habitacion_router.put("/{id_habitacion}")
 def update_limpieza(id_habitacion: int):
     return habitacion_controller.update_limpieza(id_habitacion)
