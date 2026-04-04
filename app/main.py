@@ -6,6 +6,7 @@ from routes.habitacion import habitacion_router
 from routes.modulo import modulo_router
 from routes.moduloRol import moduloRol_router
 from routes.reserva import reserva_router
+from routes.reservaHabitacion import reservaHabitacion_router
 
 from routes.tipoDocumento import tipoDocumento_router
 from routes.tipoHabitacion import tipoHabitacion_router
@@ -35,6 +36,7 @@ app.include_router(habitacion_router, prefix="/habitaciones", tags=["Habitacione
 app.include_router(modulo_router, prefix="/modulos", tags=["Modulos"], dependencies=[Depends(verificar_token)])
 app.include_router(moduloRol_router, prefix="/modulos-roles", tags=["Módulos-Roles"], dependencies=[Depends(verificar_token)])
 app.include_router(reserva_router, prefix="/reservas", tags=["Reservas"], dependencies=[Depends(verificar_token)])
+app.include_router(reservaHabitacion_router, prefix="/reservas-habitaciones", tags=["Reservas-Habitaciones"], dependencies=[Depends(verificar_token)])
 
 app.include_router(tipoDocumento_router, prefix="/tipos-documento", tags=["Tipos de Documento"], dependencies=[Depends(verificar_token)])
 app.include_router(tipoHabitacion_router, prefix="/tipos-habitacion", tags=["Tipos de Habitación"],dependencies=[Depends(verificar_token)])

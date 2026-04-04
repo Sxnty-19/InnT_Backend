@@ -27,7 +27,7 @@ def get_documentos_usuarios():
     return documento_controller.get_documentos_usuarios()
 
 # Obtener documentos de un usuario
-@documento_router.get("/usuario/{id_usuario}")
+@documento_router.get("/usuario/")
 def get_documentos_usuario(payload: dict = Depends(verificar_token)):
     return documento_controller.get_documentos_usuario(payload)
 
