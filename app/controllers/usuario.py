@@ -20,7 +20,6 @@ class UsuarioController:
             date = get_date()
             password = encriptar_password(usuario.password)
 
-
             query = """
                 INSERT INTO usuario (
                     id_rol,

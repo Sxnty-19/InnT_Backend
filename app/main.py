@@ -12,7 +12,7 @@ from routes.solicitud import solicitud_router
 from routes.tipoDocumento import tipoDocumento_router
 from routes.tipoHabitacion import tipoHabitacion_router
 from routes.usuario import usuario_router
-#from routes.usuarioHabitacion import usuarioHabitacion_router
+from routes.usuarioHabitacion import usuarioHabitacion_router
 from utils.auth import verificar_token
 
 app = FastAPI(
@@ -45,7 +45,7 @@ app.include_router(solicitud_router, prefix="/solicitudes", tags=["Solicitudes"]
 app.include_router(tipoDocumento_router, prefix="/tipos-documento", tags=["Tipos de Documento"], dependencies=[Depends(verificar_token)])
 app.include_router(tipoHabitacion_router, prefix="/tipos-habitacion", tags=["Tipos de Habitación"],dependencies=[Depends(verificar_token)])
 app.include_router(usuario_router, prefix="/usuarios", tags=["Usuarios"], dependencies=[Depends(verificar_token)])
-#app.include_router(usuarioHabitacion_router, prefix="/usuarios_habitaciones", tags=["Usuarios-Habitaciones"], dependencies=[Depends(verificar_token)])
+app.include_router(usuarioHabitacion_router, prefix="/usuarios_habitaciones", tags=["Usuarios-Habitaciones"], dependencies=[Depends(verificar_token)])
 
 #uvicorn main:app --reload
 #fastapi dev main.py
