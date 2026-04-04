@@ -3,8 +3,6 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from psycopg2.extras import RealDictCursor
 from datetime import datetime, timedelta
-
-from realtime import Optional
 from config.neonConfig import connection_neon
 from models.reserva import Reserva
 from utils.time import get_date
