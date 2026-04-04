@@ -26,6 +26,7 @@ class RolController:
                     date_created,
                     date_updated
                 ) VALUES (%s, %s, %s, %s, %s)
+                RETURNING id_rol
             """
             values = (
                 rol.nombre,
@@ -159,7 +160,7 @@ class RolController:
             if conn:
                 conn.close()
 
-    def update_rol(self, id_rol:int):
+    def update_estado(self, id_rol:int):
         conn = None
         cursor = None
 

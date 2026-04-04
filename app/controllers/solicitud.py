@@ -27,6 +27,7 @@ class SolicitudController:
                     date_created,
                     date_updated
                 ) VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id_solicitud
             """
             values = (
                 solicitud.id_usuario,
@@ -188,6 +189,7 @@ class SolicitudController:
                     date_created,
                     date_updated
                 ) VALUES (%s, %s, %s, %s, %s, %s)
+                RETURNING id_solicitud
             """
             values = (
                 id_usuario,
