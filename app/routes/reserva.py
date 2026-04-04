@@ -49,5 +49,7 @@ async def create_reserva_habitaciones(payload: ReservaAux):
         payload.id_usuario,
         payload.date_start,
         payload.date_end,
+        payload.tiene_ninos,
+        payload.tiene_mascotas,
         payload.habitaciones
     )

@@ -360,7 +360,7 @@ class ReservaController:
                 cursor.execute("""
                     SELECT th.capacidad_max, th.precio_x_dia
                     FROM habitacion h
-                    JOIN tipo_habitacion th ON h.id_tipo_habitacion = th.id_tipo_habitacion
+                    JOIN tipo_habitacion th ON h.id_thabitacion = th.id_thabitacion
                     WHERE h.id_habitacion = %s
                 """, (id_h,))
 
