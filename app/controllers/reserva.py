@@ -133,7 +133,7 @@ class ReservaController:
             if conn:
                 conn.close()
 
-    def get_reservas_activas(self, id_usuario: int):
+    def get_reservas_activas(self, payload: dict):
         conn = None
         cursor = None
 
@@ -142,6 +142,7 @@ class ReservaController:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
 
             date = get_date()
+            id_usuario = payload.get("id_usuario")
 
             cursor.execute("""
                 SELECT *
@@ -173,7 +174,7 @@ class ReservaController:
             if conn:
                 conn.close()
 
-    def get_reservas_terminadas(self, id_usuario: int):
+    def get_reservas_terminadas(self, payload: dict):
         conn = None
         cursor = None
 
@@ -182,6 +183,7 @@ class ReservaController:
             cursor = conn.cursor(cursor_factory=RealDictCursor)
 
             date = get_date()
+            id_usuario = payload.get("id_usuario")
 
             cursor.execute("""
                 SELECT *
