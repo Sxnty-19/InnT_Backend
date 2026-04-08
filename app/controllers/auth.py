@@ -20,6 +20,13 @@ class AuthController:
             id_rol = 3
             date = get_date()
 
+            if usuario.telefono:
+                cursor.execute(
+                    "SELECT 1 FROM usuario WHERE telefono = %s", (usuario.telefono,)
+                )
+                if cursor.fetchone():
+                    raise HTTPException(status_code=400, detail="El teléfono ya está en uso")
+
             if usuario.correo:
                 cursor.execute(
                     "SELECT 1 FROM usuario WHERE correo = %s", (usuario.correo,)
