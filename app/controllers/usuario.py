@@ -163,7 +163,8 @@ class UsuarioController:
                 "segundo_nombre",
                 "primer_apellido",
                 "segundo_apellido",
-                "telefono"
+                "telefono",
+                "correo",
             }
 
             cursor.execute("""
@@ -180,6 +181,26 @@ class UsuarioController:
 
             if not data:
                 raise HTTPException(status_code=400, detail="No hay campos válidos para actualizar")
+            
+            if "telefono" in data:
+                cursor.execute("""
+                    SELECT 1 FROM usuario
+                    WHERE telefono = %s
+                    AND id_usuario != %s
+                """, (data["telefono"], id_usuario))
+
+                if cursor.fetchone():
+                    raise HTTPException(status_code=400, detail="El teléfono ya está en uso")
+                
+            if "correo" in data:
+                cursor.execute("""
+                    SELECT 1 FROM usuario
+                    WHERE correo = %s
+                    AND id_usuario != %s
+                """, (data["correo"], id_usuario))
+
+                if cursor.fetchone():
+                    raise HTTPException(status_code=400, detail="El correo ya está en uso")
 
             campos = ", ".join([f"{key} = %s" for key in data.keys()])
             values = list(data.values())
