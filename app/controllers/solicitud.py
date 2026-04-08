@@ -134,12 +134,15 @@ class SolicitudController:
             
             id_usuario = payload.get("id_usuario")
 
-
             cursor.execute("""
-                SELECT *
+                SELECT 
+                    solicitud.*,
+                    habitacion.numero AS numero_habitacion
                 FROM solicitud
-                WHERE id_usuario = %s
-                ORDER BY date_created DESC
+                INNER JOIN habitacion 
+                    ON solicitud.id_habitacion = habitacion.id_habitacion
+                WHERE solicitud.id_usuario = %s
+                ORDER BY solicitud.date_created DESC
             """, (id_usuario,))
 
             data = cursor.fetchall()
@@ -163,14 +166,16 @@ class SolicitudController:
             if conn:
                 conn.close()
 
-    def create_solicitud_habitacion(self, id_usuario: int, numero_habitacion: str, descripcion: str, estado: bool = True):
+    def create_solicitud_habitacion(self, payload: dict, numero_habitacion: str, descripcion: str, estado: bool = True):
         conn = None
         cursor = None
 
         try:
             conn = connection_neon()
             cursor = conn.cursor(cursor_factory=RealDictCursor)
+
             date = get_date()
+            id_usuario = payload["id_usuario"]
 
             cursor.execute("SELECT id_habitacion FROM habitacion WHERE numero = %s", (numero_habitacion,))
             habitacion = cursor.fetchone()
