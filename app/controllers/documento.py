@@ -198,6 +198,7 @@ class DocumentoController:
 
             cursor.execute("""
                 SELECT
+                    d.id_documento,
                     d.numero_documento,
                     d.lugar_expedicion,
                     d.url_imagen,
