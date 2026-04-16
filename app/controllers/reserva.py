@@ -227,11 +227,14 @@ class ReservaController:
 
             cursor.execute("""
                 SELECT
+                    r.id_reserva,
                     r.date_start,
                     r.date_end,
                     r.tiene_ninos,
                     r.tiene_mascotas,
                     r.total_cop,
+                    r.capacidad_total,
+                    r.estado,
                     u.primer_nombre || ' ' ||
                     COALESCE(u.segundo_nombre, '') || ' ' ||
                     u.primer_apellido || ' ' ||
