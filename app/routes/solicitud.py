@@ -25,3 +25,7 @@ async def get_solicitudes_usuario(payload: dict = Depends(verificar_token)):
 @solicitud_router.post("/habitacion/")
 async def create_solicitud_habitacion(payload: dict = Depends(verificar_token), numero_habitacion: str = Form(...), descripcion: str = Form(...), estado: bool = Form(True)):
     return solicitud_controller.create_solicitud_habitacion(payload, numero_habitacion, descripcion, estado)
+
+@solicitud_router.put("/{id_solicitud}")
+async def update_solicitud(id_solicitud: int):
+    return solicitud_controller.update_solicitud(id_solicitud)

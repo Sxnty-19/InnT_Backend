@@ -67,7 +67,16 @@ class SolicitudController:
             conn = connection_neon()
             cursor = conn.cursor(cursor_factory=RealDictCursor)
 
-            cursor.execute("SELECT * FROM solicitud")
+            cursor.execute("""
+                SELECT 
+                    solicitud.*,
+                    habitacion.numero AS numero_habitacion
+                FROM solicitud
+                INNER JOIN habitacion 
+                    ON solicitud.id_habitacion = habitacion.id_habitacion
+                WHERE solicitud.estado = TRUE
+                ORDER BY solicitud.date_created DESC
+            """)
 
             data = cursor.fetchall()
 
@@ -141,7 +150,7 @@ class SolicitudController:
                 FROM solicitud
                 INNER JOIN habitacion 
                     ON solicitud.id_habitacion = habitacion.id_habitacion
-                WHERE solicitud.id_usuario = %s
+                WHERE solicitud.id_usuario = %s AND solicitud.estado = TRUE
                 ORDER BY solicitud.date_created DESC
             """, (id_usuario,))
 
@@ -215,6 +224,47 @@ class SolicitudController:
                 "id_solicitud": new_id
             }
 
+        except psycopg2.Error as err:
+            if conn:
+                conn.rollback()
+            raise HTTPException(status_code=500, detail=f"Error en la base de datos: {str(err)}")
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    def update_solicitud(self, id_solicitud: int):
+        conn = None
+        cursor = None
+
+        try:
+            conn = connection_neon()
+            cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+            date = get_date()
+
+            cursor.execute("""
+                UPDATE solicitud
+                SET estado = FALSE,
+                    date_updated = %s
+                WHERE id_solicitud = %s
+                RETURNING id_solicitud
+            """, (date, id_solicitud))
+
+            data = cursor.fetchone()
+
+            if not data:
+                raise HTTPException(status_code=404, detail="Solicitud no encontrada.")
+
+            conn.commit()
+
+            return {
+                "success": True,
+                "message": "Solicitud atendida correctamente."
+            }
+            
         except psycopg2.Error as err:
             if conn:
                 conn.rollback()
