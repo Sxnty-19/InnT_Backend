@@ -155,7 +155,7 @@ class HabitacionController:
                     AND r.date_start < %s
                     AND r.date_end > %s
                 ) 
-                ORDER BY h.numero DESC
+                ORDER BY h.numero ASC
             """, (date_end, date_start))
 
             data = cursor.fetchall()

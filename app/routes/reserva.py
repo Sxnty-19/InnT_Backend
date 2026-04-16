@@ -44,12 +44,12 @@ async def delete_reserva(id_reserva: int):
 
 # Crear reserva con habitaciones
 @reserva_router.post("/habitaciones/")
-async def create_reserva_habitaciones(payload: ReservaAux):
+async def create_reserva_habitaciones(data: ReservaAux, payload: dict = Depends(verificar_token), ):
     return reserva_controller.create_reserva_habitaciones(
-        payload.id_usuario,
-        payload.date_start,
-        payload.date_end,
-        payload.tiene_ninos,
-        payload.tiene_mascotas,
-        payload.habitaciones
+        payload["id_usuario"],
+        data.date_start,
+        data.date_end,
+        data.tiene_ninos,
+        data.tiene_mascotas,
+        data.habitaciones
     )
