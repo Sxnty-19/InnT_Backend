@@ -133,7 +133,8 @@ class RolController:
             cursor.execute("""
                 SELECT 
                     id_rol, 
-                    nombre 
+                    nombre,
+                    estado
                 FROM rol 
                 WHERE estado = TRUE
                 ORDER BY nombre

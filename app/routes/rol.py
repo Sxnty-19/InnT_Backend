@@ -17,7 +17,7 @@ async def get_roles():
 async def get_rol_id(id_rol: int):
     return rol_controller.get_rol_id(id_rol)
 
-@rol_router.get("/roles/")
+@rol_router.get("/activos/")
 async def get_roles_activos():
     return rol_controller.get_roles_activos()
 

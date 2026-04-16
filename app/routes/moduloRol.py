@@ -21,3 +21,7 @@ def get_moduloRol_id(id_mxr: int):
 @moduloRol_router.get("/rol/")
 def get_modulos_rol(payload: dict = Depends(verificar_token)):
     return moduloRol_controller.get_modulos_rol(payload)
+
+@moduloRol_router.get("/roles/{id_rol}")
+def get_modulos_roles(id_rol: int):
+    return moduloRol_controller.get_modulos_roles(id_rol)
