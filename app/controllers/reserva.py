@@ -194,7 +194,7 @@ class ReservaController:
                 AND estado = TRUE
                 AND date_end < %s
                 ORDER BY date_end DESC
-            """, (id_usuario, date, date))
+            """, (id_usuario, date))
 
             data = cursor.fetchall()
 
